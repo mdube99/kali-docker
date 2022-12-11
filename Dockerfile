@@ -26,8 +26,6 @@ ARG REMOTE_ACCESS
 ARG KALI_PACKAGE
 ARG SSH_PORT
 ARG RDP_PORT
-ARG VNC_PORT
-ARG VNC_DISPLAY
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -44,7 +42,7 @@ ENV DESKTOP_PKG=kali-desktop-${DESKTOP_ENVIRONMENT}
 # #####################################################
 # the remote client to use
 # if it is null then it will default to x2go
-# valid choices are vnc, rdp, x2go
+# valid choices are rdp and x2go
 # #####################################################
 
 ENV REMOTE_ACCESS=${REMOTE_ACCESS:-x2go}
@@ -65,7 +63,14 @@ ENV KALI_PKG=kali-linux-${KALI_PACKAGE}
 
 RUN apt update -q --fix-missing  
 RUN apt upgrade -y
-RUN apt -y install --no-install-recommends sudo wget curl dbus-x11 xinit ${DESKTOP_PKG}
+RUN apt -y install --no-install-recommends sudo iputils-ping vim wget curl dbus-x11 xinit ${DESKTOP_PKG}
+
+# #####################################################
+# install custom applications & settings
+# #####################################################
+
+RUN apt -y install --no-install-recommends kali-tools-top10 exa neovim ripgrep feh htop fzf bloodhound bloodhound.py feroxbuster evolution
+ADD $HOME/Desktop/ /home/mdube/Desktop
 
 # #####################################################
 # create the start bash shell file
@@ -85,8 +90,8 @@ RUN apt -y install --no-install-recommends ${KALI_PKG}
 # create the non-root kali user
 # #####################################################
 
-RUN useradd -m -s /bin/bash -G sudo kaliuser
-RUN echo 'kaliuser:onemarcfifty' | chpasswd
+RUN useradd -m -s /bin/bash -G sudo mdube
+RUN echo 'mdube:onemarcfifty' | chpasswd
 
 # #####################################################
 # change the ssh port in /etc/ssh/sshd_config
@@ -124,38 +129,6 @@ RUN if [ "xrdp" = "x${REMOTE_ACCESS}" ] ; \
     fi
 
 # ###########################################################
-# install and configure tigervnc-standalone-server
-# ###########################################################
-# this needs a bit more tweaking than the other protocols
-# we need to set the mandatory security options,
-# the password for the connection, the port to use
-# and also define the kaliuser to be used for the 
-# screen VNC_DISPLAY
-# the password seems to be overwritten so I am hard
-# setting it in the /startkali.sh script each time 
-# After running tigervncsession-start, the session will
-# terminate once the user logs out. Therefore
-# we do a sudo -u kaliuser vncserver in an endless loop 
-# afterwords. This way we always have a running vnc server
-# ###########################################################
-
-RUN if [ "xvnc" = "x${REMOTE_ACCESS}" ] ; \
-    then \
-        apt -y install --no-install-recommends tigervnc-standalone-server tigervnc-tools; \
-        echo "/usr/libexec/tigervncsession-start :${VNC_DISPLAY} " >> /startkali.sh ; \
-        echo "echo -e 'onemarcfifty' | vncpasswd -f >/home/kaliuser/.vnc/passwd" >> /startkali.sh  ;\
-        echo "while true; do sudo -u kaliuser vncserver -fg -v ; done" >> /startkali.sh ; \
-        echo ":${VNC_DISPLAY}=kaliuser" >>/etc/tigervnc/vncserver.users ;\
-        echo '$localhost = "no";' >>/etc/tigervnc/vncserver-config-mandatory ;\
-        echo '$SecurityTypes = "VncAuth";' >>/etc/tigervnc/vncserver-config-mandatory ;\
-        mkdir -p /home/kaliuser/.vnc ;\
-        chown kaliuser:kaliuser /home/kaliuser/.vnc ;\
-        touch /home/kaliuser/.vnc/passwd ;\
-        chown kaliuser:kaliuser /home/kaliuser/.vnc/passwd ;\
-        chmod 600 /home/kaliuser/.vnc/passwd ;\
-    fi
-
-# ###########################################################
 # The /startkali.sh script may terminate, i.e. if we only 
 # have statements inside it like /etc/init.d/xxx start
 # then once the startscript has finished, the container 
@@ -171,7 +144,7 @@ RUN echo "/bin/bash" >> /startkali.sh
 # expose the right ports and set the entrypoint
 # ###########################################################
 
-EXPOSE ${SSH_PORT} ${RDP_PORT} ${VNC_PORT}
+EXPOSE ${SSH_PORT} ${RDP_PORT} 
 WORKDIR "/root"
 ENTRYPOINT ["/bin/bash"]
 CMD ["/startkali.sh"]
