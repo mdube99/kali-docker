@@ -8,8 +8,6 @@
 # ##########################################################################
 
 XRDP_PORT=13389
-XVNC_DISPLAY=8
-XVNC_PORT=590${XVNC_DISPLAY}
 XSSH_PORT=20022
 
 # ##########################################################################
@@ -24,8 +22,8 @@ XSSH_PORT=20022
 XDESKTOP_ENVIRONMENT=xfce
 XDESKTOP_CHOICE=("xfce" "mate" "kde" "e17" "gnome" "i3" "i3-gaps" "live" "lxde")
 
-XREMOTE_ACCESS=vnc
-XREMOTE_CHOICE=("vnc" "rdp" "x2go")
+XREMOTE_ACCESS=rdp
+XREMOTE_CHOICE=("rdp" "x2go")
 
 XKALI_PKG=default
 XKALI_CHOICE=("arm" "core" "default" "everything" "firmware" "headless" "labs" "large" "nethunter")
@@ -108,8 +106,6 @@ docker build \
         --build-arg REMOTE_ACCESS=$XREMOTE_ACCESS \
         --build-arg KALI_PACKAGE=$XKALI_PKG \
         --build-arg RDP_PORT=$XRDP_PORT \
-        --build-arg VNC_PORT=$XVNC_PORT \
-        --build-arg VNC_DISPLAY=$XVNC_DISPLAY \
         --build-arg SSH_PORT=$XSSH_PORT \
         .
 
@@ -123,11 +119,11 @@ docker build \
 
 docker create   --name kali-linux \
                 --network $XNETWORK \
+                --hostname kali \
                 -p $XRDP_PORT:$XRDP_PORT \
-                -p $XVNC_PORT:$XVNC_PORT \
                 -p $XSSH_PORT:$XSSH_PORT \
                 -t \
-                -v kaliuser_data:/home/kaliuser \
+                -v kaliuser_data:/home/mdube \
                 onemarcfifty/kali-linux
 
 # ##########################################
