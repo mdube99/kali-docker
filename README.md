@@ -1,17 +1,15 @@
-# kali-linux-docker
+# kali-docker
 
-a docker container running a customizable full Kali Linux distribution.
+A docker container running a customizable full Kali Linux distribution.
 
 The build script lets you chose 
 
-- which remote access software you want to use (vnc, x2go, rdp)
-- which network you want to use  (host, bridge)
 - which Kali Packages to install (core, default everything and so on)
-- which Desktop environment to use ( xfce, kde, gnome, mate etc.)
+- which Desktop environment to use ( xfce, kde, gnome, mate etc.). It should be noted that not all Desktop Environments work properly.
 
 ## how to build
 
-Download all the files into a subdirectory on your linux docker host, e.g. /home/marc/kali-linux docker
+Download all the files into a subdirectory on your linux docker host, e.g. /home/mdube/kali-linux docker
 then cd into that directory and run
 
     sudo ./build
@@ -21,7 +19,7 @@ and starts it. So in a nutshell, the complete command sequence in a linux shell 
 
     apt update
     apt install git
-    git clone https://github.com/onemarcfifty/kali-linux-docker.git
+    git clone https://github.com/mdube99/kali-docker.git
     cd kali-linux-docker
     sudo ./build
 
@@ -29,14 +27,15 @@ and starts it. So in a nutshell, the complete command sequence in a linux shell 
 
 You can now connect to the container by launching your favourite remote access software. The default ports defined in the script are as follows:
 
-- RDP on port 13389
-- ssh / x2goserver on port 20022
-- vnc on port 5908 / display :8
+- RDP on port 3389
+- ssh on port 22
 
-All user names are `kaliuser` and all passwords are `onemarcfifty`
+The build script will prompt you for an additional user, along with the password for that user.
 
-## more info
+## docker-compose
 
-Find all details on [my youtube channel](https://www.youtube.com/onemarcfifty)
+In the docker-compose file, you can add folders you would like persistent across your host. In the event you need to create a new image, you don't have to worry about losing/transferring files. 
 
-You may also want to join [THE ONEMARCFIFTY DISCORD SERVER](https://discord.com/invite/DXnfBUG) and chat life with me and/or others - cu there ;-)
+You will need to change the home directories on these volumes to match the user that you will use for the image (e.g. mdube)
+
+You will notice in the docker-compose file there is a volume for the browser. This is to store the firefox information (such as foxyproxy) for use with burpsuite. I recommend that you create a set folder for this, to ensure that your browser settings stay persistent after stopping/starting the container. 
