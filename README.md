@@ -39,3 +39,19 @@ In the docker-compose file, you can add folders you would like persistent across
 You will need to change the home directories on these volumes to match the user that you will use for the image (e.g. mdube)
 
 You will notice in the docker-compose file there is a volume for the browser. This is to store the firefox information (such as foxyproxy) for use with burpsuite. I recommend that you create a set folder for this, to ensure that your browser settings stay persistent after stopping/starting the container. 
+
+## Remote Desktop
+
+For using RDP, i recommend using `xfreerdp`. The following command will allow you to remote into the container, without entering any password:
+
+```bash
+xfreerdp /u:root /p: /v:10.1.0.2
+```
+
+This will prompt you for a username/password when you remote into the box, rather than specifying it in the command line. 
+
+If you want to specify the resolution for the remote desktop session, you can use 1920x1080 by using the following command:
+
+```bash
+xfreerdp /u:root /p: /v:10.1.0.2 /w:1920 /h:1080
+```
