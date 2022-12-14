@@ -26,6 +26,8 @@ ARG REMOTE_ACCESS
 ARG KALI_PACKAGE
 ARG SSH_PORT
 ARG RDP_PORT
+ARG USER
+ARG PASS
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -39,13 +41,7 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV DESKTOP_ENVIRONMENT=${DESKTOP_ENVIRONMENT:-xfce}
 ENV DESKTOP_PKG=kali-desktop-${DESKTOP_ENVIRONMENT}
 
-# #####################################################
-# the remote client to use
-# if it is null then it will default to x2go
-# valid choices are rdp and x2go
-# #####################################################
-
-ENV REMOTE_ACCESS=${REMOTE_ACCESS:-x2go}
+ENV REMOTE_ACCESS=${REMOTE_ACCESS:-rdp}
 
 # #####################################################
 # the kali packages to install
@@ -63,14 +59,13 @@ ENV KALI_PKG=kali-linux-${KALI_PACKAGE}
 
 RUN apt update -q --fix-missing  
 RUN apt upgrade -y
-RUN apt -y install --no-install-recommends sudo iputils-ping vim wget curl dbus-x11 xinit ${DESKTOP_PKG}
+RUN apt -y install --no-install-recommends sudo iputils-* vim wget curl dbus-x11 xinit ${DESKTOP_PKG}
 
 # #####################################################
 # install custom applications & settings
 # #####################################################
 
-RUN apt -y install --no-install-recommends kali-tools-top10 exa neovim ripgrep feh htop fzf bloodhound bloodhound.py feroxbuster evolution
-ADD $HOME/Desktop/ /home/mdube/Desktop
+RUN apt -y install --no-install-recommends kali-tools-top10 exa neovim ripgrep feh htop fzf bloodhound bloodhound.py feroxbuster evolution libreoffice
 
 # #####################################################
 # create the start bash shell file
@@ -91,7 +86,7 @@ RUN apt -y install --no-install-recommends ${KALI_PKG}
 # #####################################################
 
 RUN useradd -m -s /bin/bash -G sudo mdube
-RUN echo 'mdube:onemarcfifty' | chpasswd
+RUN echo "${USER}:${PASS}" | chpasswd
 
 # #####################################################
 # change the ssh port in /etc/ssh/sshd_config
@@ -105,17 +100,6 @@ RUN echo 'mdube:onemarcfifty' | chpasswd
 # #####################################################
 
 RUN echo "Port $SSH_PORT" >>/etc/ssh/sshd_config
-
-# #############################
-# install and configure x2go
-# x2go uses ssh
-# #############################
-
-RUN if [ "xx2go" = "x${REMOTE_ACCESS}" ]  ; \
-    then \
-        apt -y install --no-install-recommends x2goserver ; \
-        echo "/etc/init.d/x2goserver start" >> /startkali.sh ; \
-    fi
 
 # #############################
 # install and configure xrdp
@@ -138,7 +122,21 @@ RUN if [ "xrdp" = "x${REMOTE_ACCESS}" ] ; \
 # up and running until it is stopped.
 # ###########################################################
 
-RUN echo "/bin/bash" >> /startkali.sh
+# #############################
+# Setup custom files
+# #############################
+
+RUN mkdir /home/mdube/dotfiles
+RUN git clone https://github.com/mdube99/dotfiles.git /home/mdube/dotfiles
+RUN chown mdube /home/mdube/dotfiles/* -R
+RUN echo "source /home/mdube/dotfiles/zsh/zshrc.sh" >> /home/mdube/.zshrc
+RUN echo "source-file /home/mdube/dotfiles/tmux/tmux.conf" >> /home/mdube/.tmux.conf
+RUN git clone https://github.com/mdube99/lvim.git /home/mdube/.config/lvim
+RUN pip install git+https://github.com/blacklanternsecurity/trevorproxy
+RUN pip install updog
+
+
+RUN echo "/bin/zsh" >> /startkali.sh
 
 # ###########################################################
 # expose the right ports and set the entrypoint
@@ -146,5 +144,5 @@ RUN echo "/bin/bash" >> /startkali.sh
 
 EXPOSE ${SSH_PORT} ${RDP_PORT} 
 WORKDIR "/root"
-ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["/bin/zsh"]
 CMD ["/startkali.sh"]
