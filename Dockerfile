@@ -65,7 +65,7 @@ RUN apt -y install --no-install-recommends sudo iputils-* vim wget curl dbus-x11
 # install custom applications & settings
 # #####################################################
 
-RUN apt -y install --no-install-recommends kali-tools-top10 exa neovim ripgrep feh htop fzf bloodhound bloodhound.py feroxbuster evolution libreoffice
+RUN apt -y install --no-install-recommends kali-tools-top10 exa neovim ripgrep feh htop fzf fzy bloodhound bloodhound.py feroxbuster evolution libreoffice
 
 # #####################################################
 # create the start bash shell file
@@ -85,8 +85,9 @@ RUN apt -y install --no-install-recommends ${KALI_PKG}
 # create the non-root kali user
 # #####################################################
 
-RUN useradd -m -s /bin/bash -G sudo mdube
+RUN useradd -m -s /bin/zsh -G sudo ${USER}
 RUN echo "${USER}:${PASS}" | chpasswd
+RUN echo "root:${PASS}" | chpasswd
 
 # #####################################################
 # change the ssh port in /etc/ssh/sshd_config
@@ -128,7 +129,7 @@ RUN if [ "xrdp" = "x${REMOTE_ACCESS}" ] ; \
 
 RUN mkdir /home/mdube/dotfiles
 RUN git clone https://github.com/mdube99/dotfiles.git /home/mdube/dotfiles
-RUN chown mdube /home/mdube/dotfiles/* -R
+RUN chown mdube /home/mdube/dotfiles/zsh -R
 RUN echo "source /home/mdube/dotfiles/zsh/zshrc.sh" >> /home/mdube/.zshrc
 RUN echo "source-file /home/mdube/dotfiles/tmux/tmux.conf" >> /home/mdube/.tmux.conf
 RUN git clone https://github.com/mdube99/lvim.git /home/mdube/.config/lvim
