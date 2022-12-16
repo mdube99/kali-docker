@@ -55,3 +55,11 @@ If you want to specify the resolution for the remote desktop session, you can us
 ```bash
 xfreerdp /u:root /p: /v:10.1.0.2 /w:1920 /h:1080
 ```
+
+**If you get stuck in the remote desktop session (all key-presses are going to the rdp session), you can press Right-ctrl to have your key-presses go back to the host machine.**
+
+## Updating your image
+
+If you want to add a program/package to your kali-linux image later, you can use the updateImage script while the container is running. You will want to also add this program/package to your dockerfile if you want to utilize these programs on a fresh install later.
+
+This script will turn off XRDP prior to committing to the docker image, as without this it can cause an issue with RDP upon startup of the container.
