@@ -65,7 +65,7 @@ RUN apt -y install --no-install-recommends sudo iputils-* vim wget curl dbus-x11
 # install custom applications & settings
 # #####################################################
 
-RUN apt -y install --no-install-recommends kali-tools-top10 exa neovim ripgrep feh htop fzf fzy bloodhound bloodhound.py feroxbuster evolution libreoffice
+RUN apt -y install --no-install-recommends kali-tools-top10 golang exa neovim ripgrep feh htop fzf fzy bloodhound bloodhound.py feroxbuster evolution libreoffice
 
 # #####################################################
 # create the start bash shell file
@@ -128,12 +128,11 @@ RUN if [ "xrdp" = "x${REMOTE_ACCESS}" ] ; \
 # #############################
 
 RUN mkdir /home/mdube/dotfiles
-RUN git clone https://github.com/mdube99/dotfiles.git /home/mdube/dotfiles
-RUN chown mdube /home/mdube/dotfiles/zsh -R
+RUN runuser -l mdube -c 'git clone https://github.com/mdube99/dotfiles.git /home/mdube/dotfiles'
 RUN echo "source /home/mdube/dotfiles/zsh/zshrc.sh" >> /home/mdube/.zshrc
 RUN echo "source-file /home/mdube/dotfiles/tmux/tmux.conf" >> /home/mdube/.tmux.conf
-RUN git clone https://github.com/mdube99/lvim.git /home/mdube/.config/lvim
 RUN pip install git+https://github.com/blacklanternsecurity/trevorproxy
+RUN pip install git+https://github.com/blacklanternsecurity/trevorspray
 RUN pip install updog
 
 
