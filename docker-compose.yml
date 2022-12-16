@@ -5,18 +5,16 @@ services:
     image: kali-linux
     container_name: kali-linux
     hostname: kali
-    ports:
-      - "3389:3389"
-      - "22:22"
     tty: true
     volumes:
-      - /home/mdube-manjaro/Desktop/Kali:/home/mdube/Desktop
+      - /home/mdube-manjaro/Desktop/Kali/home:/home/mdube/Desktop
+      - /home/mdube-manjaro/.ssh:/home/mdube/.ssh
+      - /home/mdube-manjaro/Desktop/Kali/home/.zsh_history:/home/mdube/.zsh_history
       - /home/mdube-manjaro/development:/home/mdube/development
-    # persistent firefox folder, this is to ensure that your browser settings stay the same when you stop/start the container
+      - /home/mdube-manjaro/Desktop/Kali/opt:/opt
+      # persistent firefox folder, this is to ensure that your browser settings stay the same when you stop/start the container
       - /home/mdube-manjaro/Desktop/Kali/browser:/home/mdube/.mozilla/firefox
     privileged: True
-    devices:
-      - /dev/net/tun
     # Openvpn does not like ipv6 in docker, you have to disable this or openvpn won't work
     sysctls:
       - net.ipv6.conf.all.disable_ipv6=0
