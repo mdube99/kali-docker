@@ -1,0 +1,20 @@
+#!/bin/bash
+
+"""
+If XRDP is running when the image is updated with docker commit, it will break RDP.
+Because of the way docker works, this would mean XRDP would need to be restarted everytime you start the container.
+
+If you update the container with this script, it will turn off xrdp beforehand, which fixes this issue.
+"""
+
+# Check if container is already running
+if docker ps | grep -q kali-linux; then
+    # stop xrdp
+    echo "Killing XRDP..."
+    docker exec -ti kali-linux service xrdp stop
+    # Update the image
+    echo "Creating image"
+    docker commit kali-linux kali-linux
+else
+    echo "Container is not running, image cannot be updated"
+fi
