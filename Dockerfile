@@ -10,8 +10,6 @@
 #  - the Desktop environment (DESKTOP_ENVIRONMENT)
 #  - the remote client you want to use (REMOTE_ACCESS)
 #  - the Kali packages to install (KALI_PACKAGE)
-#  - ports to use for VNC, SSH, RDP 
-#    (RDP_PORT, VNC_DISPLAY, VNC_PORT, SSH_PORT)
 #
 # The start script is called /startkali.sh
 # and it will be built dynamically by the docker build
@@ -28,6 +26,7 @@ ARG SSH_PORT
 ARG RDP_PORT
 ARG USER
 ARG PASS
+ARG LV_BRANCH=release-1.2/neovim-0.8
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -127,16 +126,31 @@ RUN if [ "xrdp" = "x${REMOTE_ACCESS}" ] ; \
 # Setup custom files
 # #############################
 
-RUN mkdir /home/mdube/dotfiles
-RUN runuser -l mdube -c 'git clone https://github.com/mdube99/dotfiles.git /home/mdube/dotfiles'
-RUN echo "source /home/mdube/dotfiles/zsh/zshrc.sh" >> /home/mdube/.zshrc
-RUN echo "source-file /home/mdube/dotfiles/tmux/tmux.conf" >> /home/mdube/.tmux.conf
+# Install dependencies and LunarVim
+RUN apt update && \
+  curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
+  apt update && \
+  apt -y install nodejs && \
+  curl -LSs https://raw.githubusercontent.com/lunarvim/lunarvim/${LV_BRANCH}/utils/installer/install-neovim-from-release | bash && \
+  LV_BRANCH=${LV_BRANCH} curl -LSs https://raw.githubusercontent.com/lunarvim/lunarvim/${LV_BRANCH}/utils/installer/install.sh | bash -s -- --no-install-dependencies
+
+RUN git clone https://github.com/mdube99/dotfiles.git /root/dotfiles
+RUN rm -rf /root/.config/lvim
+RUN git clone https://github.com/mdube99/lvim.git /root/.config/lvim
+RUN git clone https://github.com/mdube99/nvim.git /root/.config/nvim
+RUN echo "source /root/dotfiles/zsh/zshrc.sh" >> /root/.zshrc
+RUN echo "source-file /root/dotfiles/tmux/tmux.conf" >> /root/.tmux.conf
 RUN pip install git+https://github.com/blacklanternsecurity/trevorproxy
 RUN pip install git+https://github.com/blacklanternsecurity/trevorspray
 RUN pip install updog
+COPY check_dotfiles.sh check_dotfiles.sh
+RUN git clone https://github.com/zap-zsh/zap.git "/root/.local/share/zap" > /dev/null 2>&1
+RUN mkdir -p "/root/.local/share/zap/plugins"
+
 
 
 RUN echo "/bin/zsh" >> /startkali.sh
+RUN echo "/bin/zsh /check_dotfiles.sh" >> /startkali.sh
 
 # ###########################################################
 # expose the right ports and set the entrypoint

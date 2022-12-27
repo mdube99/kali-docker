@@ -1,9 +1,49 @@
 #!/bin/bash
 
-if docker ps | grep -q kali-linux; then
-    docker-compose down
-else
-    docker-compose up -d
-    sleep 0.1
-    ssh 10.1.0.2
-fi
+USER=mdube
+WIDTH=1920
+HEIGHT=1080
+KALIDIR="$HOME/development/kali-docker"
+
+container_status() {
+    # Check if container is online
+    if docker ps | grep -q kali-linux; then
+        return 1
+    else
+        return 0
+    fi
+}
+
+case "$1" in
+    stop)
+    if container_status; then
+        docker-compose -f $KALIDIR/docker-compose.yml down
+    else
+        echo "kali-docker is not running"
+    fi
+    ;;
+    attach)
+    if container_status; then
+        docker exec -ti kali-linux /bin/zsh
+    else
+        docker-compose -f $KALIDIR/docker-compose.yml up -d 
+        docker exec -ti kali-linux /bin/zsh
+    fi
+    ;;
+    rdp)
+    if container_status; then
+        xfreerdp /u:$USER /p: /v:10.1.0.2 /w:$WIDTH /h:$HEIGHT
+    else
+        docker-compose -f $KALIDIR/docker-compose.yml up -d 
+        xfreerdp /u:$USER /p: /v:10.1.0.2 /w:$WIDTH /h:$HEIGHT
+    fi
+    ;;
+    *)
+    echo "Container Status:"
+    if container_status; then
+        echo "Kali docker container online"
+    else
+        echo "Kali docker container offline"
+    fi
+    ;;
+esac

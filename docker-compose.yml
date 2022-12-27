@@ -7,13 +7,13 @@ services:
     hostname: kali
     tty: true
     volumes:
-      - /home/mdube-manjaro/Desktop/Kali/home:/home/mdube/Desktop
-      - /home/mdube-manjaro/.ssh:/home/mdube/.ssh
-      - /home/mdube-manjaro/Desktop/Kali/home/.zsh_history:/home/mdube/.zsh_history
-      - /home/mdube-manjaro/development:/home/mdube/development
+      - /home/mdube-manjaro/Desktop/Kali/home:/root/Desktop
+      - /home/mdube-manjaro/.ssh:/root/.ssh
+      - /home/mdube-manjaro/Desktop/Kali/home/.zsh_history:/root/.zsh_history
+      - /home/mdube-manjaro/development:/root/development
       - /home/mdube-manjaro/Desktop/Kali/opt:/opt
       # persistent firefox folder, this is to ensure that your browser settings stay the same when you stop/start the container
-      - /home/mdube-manjaro/Desktop/Kali/browser:/home/mdube/.mozilla/firefox
+      - /home/mdube-manjaro/Desktop/Kali/browser:/root/.mozilla/firefox
     privileged: True
     # Openvpn does not like ipv6 in docker, you have to disable this or openvpn won't work
     sysctls:
@@ -21,10 +21,11 @@ services:
       - net.ipv4.conf.all.forwarding=1
       - net.ipv6.conf.all.forwarding=1
     # Set default IP, so you don't have to think about it
-    networks:
-      kali-network:
-        ipv4_address: 10.1.0.2
+    # networks:
+      # kali-network:
+      #   ipv4_address: 10.1.0.2
+    network_mode: bridge
 
-networks:
-  kali-network:
-    external: true
+# networks:
+#   kali-network:
+    # external: true

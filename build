@@ -30,5 +30,7 @@ docker build \
         --build-arg PASS=$PASS \
         .
 
+# Replace _asdf_ with the current working directory in the kaliDocker script
+sed -i "s/asdf/$PWD/g" kaliDocker
 echo "Your image and container have been built. It will now be started"
 docker-compose up -d
