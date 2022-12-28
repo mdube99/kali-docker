@@ -64,7 +64,7 @@ RUN apt -y install --no-install-recommends sudo iputils-* vim wget curl dbus-x11
 # install custom applications & settings
 # #####################################################
 
-RUN apt -y install --no-install-recommends kali-tools-top10 golang exa neovim ripgrep feh htop fzf fzy bloodhound bloodhound.py feroxbuster evolution libreoffice
+RUN apt -y install --no-install-recommends kali-tools-top10 golang exa neovim ripgrep feh htop fzf fzy bloodhound bloodhound.py feroxbuster evolution libreoffice stow
 
 # #####################################################
 # create the start bash shell file
@@ -136,16 +136,11 @@ RUN apt update && \
 
 RUN git clone https://github.com/mdube99/dotfiles.git /root/dotfiles
 RUN rm -rf /root/.config/lvim
-RUN git clone https://github.com/mdube99/lvim.git /root/.config/lvim
-RUN git clone https://github.com/mdube99/nvim.git /root/.config/nvim
-RUN echo "source /root/dotfiles/zsh/zshrc.sh" >> /root/.zshrc
-RUN echo "source-file /root/dotfiles/tmux/tmux.conf" >> /root/.tmux.conf
 RUN pip install git+https://github.com/blacklanternsecurity/trevorproxy
 RUN pip install git+https://github.com/blacklanternsecurity/trevorspray
 RUN pip install updog
+
 COPY check_dotfiles.sh check_dotfiles.sh
-RUN git clone https://github.com/zap-zsh/zap.git "/root/.local/share/zap" > /dev/null 2>&1
-RUN mkdir -p "/root/.local/share/zap/plugins"
 
 
 
