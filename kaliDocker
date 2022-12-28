@@ -38,6 +38,24 @@ case "$1" in
         xfreerdp /u:$USER /p: /v:10.1.0.2 /w:$WIDTH /h:$HEIGHT
     fi
     ;;
+    update)
+    """
+    If XRDP is running when the image is updated with docker commit, it will break RDP.
+    Because of the way docker works, this would mean XRDP would need to be restarted everytime you start the container.
+
+    If you update the container with this script, it will turn off xrdp beforehand, which fixes this issue.
+    """
+
+    if container_status; then
+        # stop xrdp
+        echo "Killing XRDP..."
+        docker exec -ti kali-linux service xrdp stop
+        # Update the image
+        echo "Updating kali-linux image"
+        docker commit kali-linux kali-linux
+    else
+        echo "Container is not running, image cannot be updated"
+    fi
     *)
     echo "Container Status:"
     if container_status; then
