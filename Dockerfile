@@ -61,10 +61,26 @@ RUN apt upgrade -y
 RUN apt -y install --no-install-recommends sudo iputils-* vim wget curl dbus-x11 xinit ${DESKTOP_PKG}
 
 # #####################################################
+# Install the Kali Packages
+# #####################################################
+
+RUN apt -y install --no-install-recommends ${KALI_PKG}
+
+# #####################################################
 # install custom applications & settings
 # #####################################################
 
 RUN apt -y install --no-install-recommends kali-tools-top10 golang exa neovim ripgrep feh htop fzf fzy bloodhound bloodhound.py feroxbuster evolution libreoffice stow
+RUN chsh -s $(which zsh)
+RUN pip install git+https://github.com/blacklanternsecurity/trevorproxy
+RUN pip install git+https://github.com/blacklanternsecurity/trevorspray
+# scarecrow
+RUN apt -y install openssl osslsigncode mingw-w64
+RUN go install -v github.com/projectdiscovery/nuclei/v2/cmd/nuclei@latest
+# Havoc dependencies
+RUN sudo apt install -y build-essential apt-utils cmake libfontconfig1 libglu1-mesa-dev libgtest-dev libspdlog-dev libboost-all-dev libncurses5-dev libgdbm-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev libbz2-dev mesa-common-dev qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools libqt5websockets5 libqt5websockets5-dev qtdeclarative5-dev golang-go qtbase5-dev libqt5websockets5-dev libspdlog-dev python3-dev libboost-all-dev mingw-w64 nasm
+# Setup metasploit defaults
+COPY msfconsole.rc /usr/share/metasploit-framework/scripts/resource/msfconsole.rc
 
 # #####################################################
 # create the start bash shell file
@@ -74,11 +90,6 @@ RUN echo "#!/bin/bash" > /startkali.sh
 RUN echo "/etc/init.d/ssh start" >> /startkali.sh
 RUN chmod 755 /startkali.sh
 
-# #####################################################
-# Install the Kali Packages
-# #####################################################
-
-RUN apt -y install --no-install-recommends ${KALI_PKG}
 
 # #####################################################
 # create the non-root kali user
@@ -135,17 +146,16 @@ RUN apt update && \
   LV_BRANCH=${LV_BRANCH} curl -LSs https://raw.githubusercontent.com/lunarvim/lunarvim/${LV_BRANCH}/utils/installer/install.sh | bash -s -- --no-install-dependencies
 
 RUN git clone https://github.com/mdube99/dotfiles.git /root/dotfiles
-RUN rm -rf /root/.config/lvim
-RUN pip install git+https://github.com/blacklanternsecurity/trevorproxy
-RUN pip install git+https://github.com/blacklanternsecurity/trevorspray
 RUN pip install updog
 
 COPY check_dotfiles.sh check_dotfiles.sh
+WORKDIR "/root/dotfiles"
+RUN rm -rf /root/.config/lvim
+RUN rm -rf /root/.zshrc
+RUN stow */
 
-
-
+RUN echo "/bin/zsh /check_dotfiles.sh 2>/dev/null" >> /startkali.sh
 RUN echo "/bin/zsh" >> /startkali.sh
-RUN echo "/bin/zsh /check_dotfiles.sh" >> /startkali.sh
 
 # ###########################################################
 # expose the right ports and set the entrypoint
