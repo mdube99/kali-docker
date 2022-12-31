@@ -11,4 +11,4 @@ else
 	({cd ~/dotfiles} &> /dev/null && git pull -q && git submodule update --init --recursive)
 fi
 
-source ~/dotfiles/zsh/zshrc.sh
+source ~/dotfiles/zsh/.config/zsh/zshrc.sh
