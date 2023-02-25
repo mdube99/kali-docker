@@ -77,6 +77,7 @@ RUN pip install git+https://github.com/blacklanternsecurity/trevorspray
 # scarecrow
 RUN apt -y install openssl osslsigncode mingw-w64
 RUN go install -v github.com/projectdiscovery/nuclei/v2/cmd/nuclei@latest
+RUN go install github.com/sensepost/gowitness@latest
 # Havoc dependencies
 RUN sudo apt install -y build-essential apt-utils cmake libfontconfig1 libglu1-mesa-dev libgtest-dev libspdlog-dev libboost-all-dev libncurses5-dev libgdbm-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev libbz2-dev mesa-common-dev qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools libqt5websockets5 libqt5websockets5-dev qtdeclarative5-dev golang-go qtbase5-dev libqt5websockets5-dev libspdlog-dev python3-dev libboost-all-dev mingw-w64 nasm
 # Setup metasploit defaults
