@@ -7,6 +7,7 @@ services:
     hostname: kali
     tty: true
     volumes:
+      - /home/mdube-manjaro/Desktop/Kali/CTF:/root/CTF
       - /home/mdube-manjaro/Desktop/Kali/home:/root/Desktop
       - /home/mdube-manjaro/.ssh:/root/.ssh
       - /home/mdube-manjaro/Desktop/Kali/home/.zsh_history:/root/.zsh_history
@@ -24,7 +25,7 @@ services:
     networks:
       kali-network:
         ipv4_address: 10.1.0.2
-    # network_mode: bridge
+    # network_mode: host
 
 networks:
   kali-network:
