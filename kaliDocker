@@ -13,7 +13,7 @@ container_status() {
 }
 
 case "$1" in
-    stop)
+    stop|drop)
     container_status
     if [ $? -eq 1 ]; then
         docker-compose -f $KALIDIR/docker-compose.yml down
@@ -61,6 +61,12 @@ case "$1" in
     else
         echo "Container is not running, image cannot be updated"
     fi
+    ;;
+    restart)
+    docker-compose -f $KALIDIR/docker-compose.yml restart
+    ;;
+    -h|help)
+    echo "Available arguments: attach, stop, rdp, update, restart"
     ;;
     *)
     echo "Container Status:"
