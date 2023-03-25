@@ -7,12 +7,12 @@ services:
     hostname: kali
     tty: true
     volumes:
-      - /home/mdube-manjaro/Desktop/Kali/CTF:/root/CTF
-      - /home/mdube-manjaro/Desktop/Kali/home:/root/Desktop
-      - /home/mdube-manjaro/.ssh:/root/.ssh
-      - /home/mdube-manjaro/Desktop/Kali/home/.zsh_history:/root/.zsh_history
-      - /home/mdube-manjaro/development:/root/development
-      - /home/mdube-manjaro/Desktop/Kali/opt:/opt
+      - /home/mark/Desktop/Kali/CTF:/root/CTF
+      - /home/mark/Desktop/Kali/home:/root/Desktop
+      - /home/mark/.ssh:/root/.ssh
+      - /home/mark/Desktop/Kali/home/.zsh_history:/root/.zsh_history
+      - /home/mark/development:/root/development
+      - /home/mark/Desktop/Kali/opt:/opt
       # persistent firefox folder, this is to ensure that your browser settings stay the same when you stop/start the container
       - /home/mdube-manjaro/Desktop/Kali/browser:/root/.mozilla/firefox
     privileged: True
