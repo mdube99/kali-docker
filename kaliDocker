@@ -1,8 +1,8 @@
 #!/bin/bash
 
-USER=mdube
-WIDTH=1920
-HEIGHT=1080
+USER=root
+WIDTH=3440
+HEIGHT=1440
 KALIDIR="$HOME/development/kali-docker"
 
 container_status() {
@@ -12,7 +12,25 @@ container_status() {
     fi
 }
 
+help_info() {
+    echo "Available arguments: "
+    echo "attach: attach to the container in the current terminal"
+    echo "build: build your container"
+    echo "rdp: Create xfreerdp session with user defined dimensions ($WIDTH:$HEIGHT)"
+    echo "update: Update docker image (if you installed something and want it to be there next boot up, you want to update your image)"
+    echo "restart: Restart your container"
+    echo "logs: Check container logs"
+}
+
 case "$1" in
+    start|Start)
+    container_status
+    if [ $? -eq 1 ]; then
+        echo "kali-docker is already running"
+    else
+        docker-compose -f $KALIDIR/docker-compose.yml up -d
+    fi
+    ;;
     stop|drop)
     container_status
     if [ $? -eq 1 ]; then
@@ -33,6 +51,35 @@ case "$1" in
     fi
     ;;
 
+    build)
+    
+    read -p "Enter your username: " USER
+    # Reads in password for new user (non-root user)
+    read -s -p "Enter your password (this will be for both the created user and the root user): " PASS
+    XKALI_PKG=default
+
+    # You can use other desktop environments, although some don't work due to drawing issues
+    # Valid choices: e17, gnome, i3, i3-gaps, kde, live, lxde, mate, xfce
+    # i3, i3-gaps and gnome don't render well
+
+    # Create docker subnet on 10.1.0.0/24 subnet
+    docker network create --subnet=10.1.0.0/24 kali-network
+
+    docker build \
+            -t kali-linux \
+            --build-arg DESKTOP_ENVIRONMENT=i3 \
+            --build-arg REMOTE_ACCESS=rdp \
+            --build-arg KALI_PACKAGE=$XKALI_PKG \
+            --build-arg RDP_PORT=3389 \
+            --build-arg SSH_PORT=22 \
+            --build-arg USER=$USER \
+            --build-arg PASS=$PASS \
+            $KALIDIR
+
+    echo "Container is ready, use kaliDocker to interact"
+    docker-compose up -d
+    ;;
+
     rdp)
     container_status
     if [ $? -eq 1 ]; then
@@ -44,12 +91,11 @@ case "$1" in
     ;;
 
     update)
-    """
-    If XRDP is running when the image is updated with docker commit, it will break RDP.
-    Because of the way docker works, this would mean XRDP would need to be restarted everytime you start the container.
-
-    If you update the container with this script, it will turn off xrdp beforehand, which fixes this issue.
-    """
+    #If XRDP is running when the image is updated with docker commit, it will break RDP.
+    #
+    #Because of the way docker works, this would mean XRDP would need to be restarted everytime you start the container.
+    #
+    #If you update the container with this script, it will turn off xrdp beforehand, which fixes this issue.
     container_status
     if [ $? -eq 1 ]; then
         # stop xrdp
@@ -66,15 +112,12 @@ case "$1" in
     docker-compose -f $KALIDIR/docker-compose.yml restart
     ;;
     -h|help)
-    echo "Available arguments: attach, stop, rdp, update, restart"
+    help_info
+    ;;
+    logs)
+    docker logs --details kali-linux
     ;;
     *)
-    echo "Container Status:"
-    container_status
-    if [ $? -eq 1 ]; then
-        echo "Kali docker container online"
-    else
-        echo "Kali docker container offline"
-    fi
+    help_info
     ;;
 esac
